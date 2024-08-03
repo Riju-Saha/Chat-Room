@@ -10,12 +10,37 @@ export default function LoginPage() {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 
-function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault(); // Prevent the default form submission
-    router.push(`/username?username=${username}`);
-}
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		console.log('Form submitted:', { username, password });
 
+		try {
+			const response = await fetch('http://localhost:8080/auth/login', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ username, password }),
+			}
+			);
 
+			if (!response.ok) {
+				alert("wrong login")
+			}
+
+			const data = await response.json();
+			console.log('Response data:', data);
+
+			if (data.success) {
+				router.push(`/${username}?username=${username}`);
+			} else {
+				alert('Login failed: ' + data.message);
+			}
+		} catch (error) {
+			console.error('Error during fetch:', error);
+			alert('An error occurred during login. Please try again.');
+		}
+	};
 	return (
 		<div className="max-w-md w-full mx-auto rounded-2xl p-4 md:p-8 shadow-input bg-black dark:bg-black">
 			<h2 className="font-bold text-xl text-center">

@@ -48,24 +48,21 @@ app.post('/auth/register', (req, res) => {
   });
 });
 
-
-// app.post('/auth/login', (req, res) => {
-//   const { username, password } = req.body;
-//   // console.log("username is: ", username)
-//   // console.log("password is: ", password)
-//   const sql = "SELECT * FROM user WHERE username = ? AND password = ?";
-//   connection.query(sql, [username, password], (err, result) => {
-//     if (err) {
-//       console.error('Database error:', err);
-//       res.status(500).json({ success: false, message: 'Database error' });
-//       return;
-//     }
-//     if (result.length > 0) {
-//       res.status(200).json({ success: true });
-//     } else {
-//       res.status(401).json({ success: false, message: 'Invalid credentials' });
-//     }
-//   });
-// });
+app.post('/auth/login', (req, res) => {
+  const { username, password } = req.body;
+  const sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+  connection.query(sql, [username, password], (err, result) => {
+    if (err) {
+      console.error('Database error:', err);
+      res.status(500).json({ success: false, message: 'Database error' });
+      return;
+    }
+    if (result.length > 0) {
+      res.status(200).json({ success: true });
+    } else {
+      res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+  });
+});
 
 app.listen(port);

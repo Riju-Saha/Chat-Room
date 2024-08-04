@@ -20,8 +20,6 @@ export default function Usernamepage() {
         <UserItem username={user} />
         <UserItem username="Doe" />
         <UserItem username="John" />
-        <UserItem username="Doe" />
-        <UserItem username="John" />
       </div>
       <div className="chats" style={{ height: "100vh", width: "73%", borderLeft: "1px solid white" }}>
         <h1 >chat section</h1>

@@ -18,6 +18,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-element-to-jsx-string": "^15.0.0",
+    "react-helmet": "^6.1.0",
+    "react-helmet-async": "^2.0.5",
+    "socket.io-client": "^4.7.5",
     "sonner": "^1.5.0",
     "styled-components": "^6.1.12",
     "tailwind-merge": "^2.4.0"

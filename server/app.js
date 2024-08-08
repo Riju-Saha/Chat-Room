@@ -46,15 +46,15 @@ app.get('/', (req, res) => {
 });
 
 app.post('/auth/register', (req, res) => {
-  const { asciiSocketId, username, name, gmail, password, phone } = req.body;
-  console.log("Received registration request:", { asciiSocketId, username, name, gmail, password, phone });
+  const { id, username, name, gmail, password, phone } = req.body;
+  console.log("Received registration request:", { id, username, name, gmail, password, phone });
 
-  if (!asciiSocketId) {
+  if (!id) {
     return res.status(400).json({ success: false, message: 'Socket ID is required' });
   }
 
   const sql = "INSERT INTO users (ID, Username, Name, Gmail, Password, Phone) VALUES (?, ?, ?, ?, ?, ?)";
-  connection.query(sql, [asciiSocketId, username, name, gmail, password, phone], (err, result) => {
+  connection.query(sql, [id, username, name, gmail, password, phone], (err, result) => {
     if (err) {
       console.error('Database error:', err);
       return res.status(500).json({ success: false, message: 'Database error' });
@@ -81,6 +81,27 @@ app.post('/auth/login', (req, res) => {
     }
   });
 });
+
+app.post('/profile/:username', (req, res) => {
+  const { username } = req.params;
+  // console.log('Username from URL:', username);
+
+  const sql = "SELECT * FROM users WHERE username = ?";
+  connection.query(sql, [username], (err, result) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    if (result.length > 0) {
+      res.status(200).json({ success: true, result });
+    } else {
+      res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+  });
+});
+
+
+
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);

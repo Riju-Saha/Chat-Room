@@ -44,18 +44,15 @@ export default function Registerpage() {
     }
 
     try {
-      // converting the alphanumberic socket id to a whole numeric socket id
-      const asciiSocketId = id.split('').map(char => char.charCodeAt(0)).join('-');
-
       // Log the data being sent to the server
-      console.log('Data being sent to server:', { asciiSocketId, username, name, gmail, password, phone });
+      console.log('Data being sent to server:', { id, username, name, gmail, password, phone });
 
       const response = await fetch('http://localhost:8080/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ asciiSocketId, username, name, gmail, password, phone }),
+        body: JSON.stringify({ id, username, name, gmail, password, phone }),
       });
 
       console.log('Server response status:', response.status);

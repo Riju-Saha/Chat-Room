@@ -4,7 +4,7 @@ export default function UserItem(props: {
   username: string | null;
 }) {
   return (
-    <div style={{width: "95%", backgroundColor: "red", margin: "2% auto"}}>
+    <div style={{ backgroundColor: "violet", marginTop: "5%", padding: "2%" }}>
       {props.username}
     </div>
   )

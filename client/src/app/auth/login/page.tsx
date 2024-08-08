@@ -32,6 +32,7 @@ export default function LoginPage() {
 			console.log('Response data:', data);
 
 			if (data.success) {
+				// router.push(`/${username}`);
 				router.push(`/${username}?username=${username}`);
 			} else {
 				alert('Login failed: ' + data.message);

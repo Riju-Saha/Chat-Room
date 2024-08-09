@@ -16,7 +16,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (username) {
-      fetchProfileData(username); 
+      fetchProfileData(username);
     }
   }, [username]);
 
@@ -36,7 +36,7 @@ const ProfilePage = () => {
       }
 
       const data = await response.json();
-      console.log(data)
+      console.log(data);
       if (data.success) {
         setUserDetails({
           ID: data.result[0].ID,
@@ -53,13 +53,57 @@ const ProfilePage = () => {
     }
   };
 
+  const containerStyle = {
+    backgroundColor: 'black',
+    color: 'black',
+    fontWeight: "bold",
+    padding: '20px',
+    borderRadius: '10px',
+    maxWidth: '500px',
+    margin: '20px auto',
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)'
+  };
+
+  // const titleStyle = {
+  // };
+
+  const labelStyle = {
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: '5px'
+  };
+
+  const valueStyle = {
+    marginBottom: '15px',
+    backgroundColor: 'lightgray',
+    padding: '10px',
+    borderRadius: '5px',
+    fontWeight: "bold"
+  };
+
   return (
-    <div>
-      <p>Username: {username}</p>
-      <p>ID: {userDetails.ID}</p>
-      <p>Name: {userDetails.Name}</p>
-      <p>Gmail: {userDetails.Gmail}</p>
-      <p>Phone: {userDetails.Phone}</p>
+    <div style={containerStyle}>
+      <h1 style={{ backgroundColor: 'red', color: 'white', padding: '10px', borderRadius: '5px', textAlign: 'center', marginBottom: '20px'}}>Profile Details</h1>
+      <div>
+        <p style={labelStyle}>Username:</p>
+        <p style={valueStyle}>{username}</p>
+      </div>
+      <div>
+        <p style={labelStyle}>ID:</p>
+        <p style={valueStyle}>{userDetails.ID}</p>
+      </div>
+      <div>
+        <p style={labelStyle}>Name:</p>
+        <p style={valueStyle}>{userDetails.Name}</p>
+      </div>
+      <div>
+        <p style={labelStyle}>Gmail:</p>
+        <p style={valueStyle}>{userDetails.Gmail}</p>
+      </div>
+      <div>
+        <p style={labelStyle}>Phone:</p>
+        <p style={valueStyle}>{userDetails.Phone}</p>
+      </div>
     </div>
   );
 };

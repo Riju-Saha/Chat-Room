@@ -53,36 +53,28 @@ const ProfilePage = () => {
     }
   };
 
-  const containerStyle = {
-    backgroundColor: 'black',
-    color: 'black',
-    fontWeight: "bold",
-    padding: '20px',
-    borderRadius: '10px',
-    maxWidth: '500px',
-    margin: '20px auto',
-    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)'
-  };
-
+  
   // const titleStyle = {
-  // };
-
-  const labelStyle = {
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: '5px'
-  };
-
-  const valueStyle = {
-    marginBottom: '15px',
-    backgroundColor: 'lightgray',
-    padding: '10px',
-    borderRadius: '5px',
-    fontWeight: "bold"
-  };
-
-  return (
-    <div style={containerStyle}>
+    // };
+    
+    const labelStyle = {
+      fontWeight: 'bold',
+      color: 'white',
+      marginBottom: '5px'
+    };
+    
+    const valueStyle = {
+      marginBottom: '15px',
+      backgroundColor: 'lightgray',
+      padding: '10px',
+      borderRadius: '5px',
+      fontWeight: "bold"
+    };
+    // const containerStyle = {
+    // };
+    
+    return (
+      <div style={{ backgroundColor: 'black', color: 'black', fontWeight: 'bold', borderRadius: '10px', maxWidth: '500px', margin: '20px auto', boxShadow: '0px 4px 8px rgba(0, 0, 0, .1)'}}>
       <h1 style={{ backgroundColor: 'red', color: 'white', padding: '10px', borderRadius: '5px', textAlign: 'center', marginBottom: '20px'}}>Profile Details</h1>
       <div>
         <p style={labelStyle}>Username:</p>

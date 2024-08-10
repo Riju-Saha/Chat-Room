@@ -82,6 +82,23 @@ app.post('/auth/login', (req, res) => {
   });
 });
 
+app.post('/:user', (req, res) => {
+  const { user } = req.params;
+  console.log("getting friends list for ",user);
+  const sql = "SELECT * FROM friendship WHERE user_id = ?";
+  connection.query(sql, [user], (err, result) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    if (result.length > 0) {
+      res.status(200).json({ success: true, result });
+    } else {
+      res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+  });
+})
+
 app.post('/profile/:username', (req, res) => {
   const { username } = req.params;
   // console.log('Username from URL:', username);

@@ -5,11 +5,51 @@ import Link from 'next/link';
 import UserItem from '@/components/useritem';
 import LogOutBtn from '@/components/LogOutBtn';
 
+interface Friend {
+  user_id: string;
+  friend_id: string;
+}
+
+
 export default function Usernamepage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const user = searchParams.get('username');
   const [isMobile, setIsMobile] = useState(false);
+  const [list, setList] = useState<Friend[]>([]);
+
+  const fetchFriendList = async (user: string) => {
+    try {
+      const response = await fetch(`http://localhost:8080/${user}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user }),
+      });
+
+      if (!response.ok) {
+        alert("Profile not found");
+        return;
+      }
+
+      const data = await response.json();
+      // console.log("final ", data.result);
+      setList(data.result);
+    } catch (error) {
+      alert("Failed to fetch the friend list.");
+    }
+  };
+
+  // useEffect(() => {
+  //   console.log("list is ", list);
+  // }, [list]);
+
+  useEffect(() => {
+    if (user) {
+      fetchFriendList(user);
+    }
+  }, [user]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -30,14 +70,14 @@ export default function Usernamepage() {
   const friendsStyle = {
     height: "100vh",
     width: isMobile ? "100vw" : "28%",
-    borderRight: isMobile ? "none" : "1px solid white",
+    borderRight: isMobile ? "none" : "1px solid white"
   };
 
   const chatsStyle = {
     height: "100vh",
     width: isMobile ? "0%" : "72%",
     borderLeft: isMobile ? "none" : "1px solid white",
-    display: isMobile ? "none" : "block", // Hide completely on mobile
+    display: isMobile ? "none" : "block"
   };
 
   return (
@@ -52,14 +92,19 @@ export default function Usernamepage() {
             </div>
           )}
 
-          <div style={{ flex: 1, textAlign: "center", fontSize: "20px" }}>Chat Room</div>
+          <div style={{ flex: 1, textAlign: "center", fontSize: "18px" }}>Chat Room</div>
 
           <Link href='/auth/login'>
             <LogOutBtn />
           </Link>
         </div>
 
-        <UserItem username="John" />
+        {list.map((element) => (
+          <UserItem key={element.friend_id} username={element.friend_id} />
+        ))}
+
+
+
       </div>
 
       <div className="chats" style={chatsStyle}>

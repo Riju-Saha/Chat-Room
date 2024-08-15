@@ -20,6 +20,7 @@ export default function Usernamepage() {
   const [list, setList] = useState<Friend[]>([]);
   const [newUID, setNewUID] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [message, setMessage] = useState<string | null>(null);
 
   const friendsStyle = {
     height: "100vh",
@@ -77,19 +78,29 @@ export default function Usernamepage() {
       console.log("API response data:", data);
 
       if (data.success) {
-        // After successfully adding a friend, fetch the updated friend list
+        setMessage("Friend added successfully!");
         await fetchFriendList();
-        // Clear the input field
         setNewUID('');
+      } else if (data.message === 'Friendship already exists') {
+        setMessage("Friendship already exists.");
       } else {
-        alert("Failed to add friend. Please check the UID.");
+        setMessage("Failed to add friend. Please check the UID.");
       }
     } catch (error) {
       console.error("Error adding friend:", error);
-      alert("Failed to add friend. Please try again.");
+      setMessage("Failed to add friend. Please check the UID.");
     }
   };
 
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage('');
+      }, 2400); 
+
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
 
   const fetchFriendList = useCallback(async () => {
     try {
@@ -106,14 +117,13 @@ export default function Usernamepage() {
       const data = await response.json();
       console.log("Fetched friend list:", data);
 
-      setList(data.result || []);  // Set the list to an empty array if data.result is undefined
+      setList(data.result || []);
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching friend list:", error);
       setIsLoading(false);
     }
   }, [user]);
-
 
   useEffect(() => {
     if (user) {
@@ -139,6 +149,8 @@ export default function Usernamepage() {
             <LogOutBtn />
           </Link>
         </div>
+
+        {message && <p style={{ color: 'white', textAlign: 'center' }}>{message}</p>}
 
         {isLoading ? (
           <p style={{ color: 'white', textAlign: 'center' }}>Loading friends...</p>

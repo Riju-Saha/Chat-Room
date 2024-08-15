@@ -83,8 +83,8 @@ app.post('/auth/login', (req, res) => {
 });
 
 app.get('/add/:user', (req, res) => {
-  const { user } = req.params; // Changed to req.params
-  console.log("Getting friends list for user:", user);
+  const { user } = req.params; 
+  // console.log("Getting friends list for user:", user);
 
   const sql = "SELECT * FROM friendship WHERE user_id = ?";
   connection.query(sql, [user], (err, result) => {
@@ -116,23 +116,31 @@ app.post('/add/:user', (req, res) => {
     if (result.length > 0) {
       const friendUsername = result[0].Username;
 
-      const insertFriendshipSql = "INSERT INTO friendship (user_id, friend_id) VALUES (?, ?), (?, ?)";
-      connection.query(insertFriendshipSql, [user, friendUsername, friendUsername, user], (err, result) => {
+      const checkFriendshipSql = "SELECT * FROM friendship WHERE (user_id = ? AND friend_id = ?)";
+      connection.query(checkFriendshipSql, [user, newUID], (err, result) => {
         if (err) {
           console.error('Database error:', err);
-          return res.status(500).json({ success: false, message: 'Failed to add friend to database' });
+          return res.status(500).json({ success: false, message: 'Database error' });
         }
 
-        res.status(200).json({ success: true, message: 'Friend added successfully' });
+        if (result.length > 0) {
+          return res.status(409).json({ success: false, message: 'Friendship already exists' });
+        } else {
+          const insertFriendshipSql = "INSERT INTO friendship (user_id, friend_id) VALUES (?, ?), (?, ?)";
+          connection.query(insertFriendshipSql, [user, friendUsername, friendUsername, user], (err, result) => {
+            if (err) {
+              console.error('Database error:', err);
+              return res.status(500).json({ success: false, message: 'Failed to add friend to database' });
+            }
+            res.status(200).json({ success: true, message: 'Friend added successfully' });
+          });
+        }
       });
     } else {
       res.status(401).json({ success: false, message: 'Invalid user ID' });
     }
   });
 });
-
-
-
 
 app.post('/profile/:username', (req, res) => {
   const { username } = req.params;

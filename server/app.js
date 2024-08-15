@@ -23,10 +23,10 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 // io.on('connection', (socket) => {
-//   console.log(`New client connected: ${socket.id}`);
+//   console.log(New client connected: ${socket.id});
 
 //   socket.on('disconnect', () => {
-//     console.log(`Client disconnected: ${socket.id}`);
+//     console.log(Client disconnected: ${socket.id});
 //   });
 // });
 
@@ -82,22 +82,57 @@ app.post('/auth/login', (req, res) => {
   });
 });
 
-app.post('/:user', (req, res) => {
-  const { user } = req.params;
-  console.log("getting friends list for ",user);
+app.get('/add/:user', (req, res) => {
+  const { user } = req.params; // Changed to req.params
+  console.log("Getting friends list for user:", user);
+
   const sql = "SELECT * FROM friendship WHERE user_id = ?";
   connection.query(sql, [user], (err, result) => {
     if (err) {
       console.error('Database error:', err);
       return res.status(500).json({ success: false, message: 'Database error' });
     }
+
     if (result.length > 0) {
-      res.status(200).json({ success: true, result });
+      res.status(200).json({ success: true, result, message: 'Friends list retrieved successfully' });
     } else {
-      res.status(401).json({ success: false, message: 'Invalid credentials' });
+      res.status(404).json({ success: false, message: 'No friends found' });
     }
   });
-})
+});
+
+
+app.post('/add/:user', (req, res) => {
+  const { newUID } = req.body;
+  const { user } = req.params;
+
+  const checkUserSql = "SELECT * FROM users WHERE ID = ?";
+  connection.query(checkUserSql, [newUID], (err, result) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    if (result.length > 0) {
+      const friendUsername = result[0].Username;
+
+      const insertFriendshipSql = "INSERT INTO friendship (user_id, friend_id) VALUES (?, ?), (?, ?)";
+      connection.query(insertFriendshipSql, [user, friendUsername, friendUsername, user], (err, result) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).json({ success: false, message: 'Failed to add friend to database' });
+        }
+
+        res.status(200).json({ success: true, message: 'Friend added successfully' });
+      });
+    } else {
+      res.status(401).json({ success: false, message: 'Invalid user ID' });
+    }
+  });
+});
+
+
+
 
 app.post('/profile/:username', (req, res) => {
   const { username } = req.params;
@@ -121,5 +156,5 @@ app.post('/profile/:username', (req, res) => {
 
 
 server.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on port ${ port }`);
 });

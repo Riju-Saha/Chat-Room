@@ -165,7 +165,7 @@ export default function Usernamepage() {
         )}
 
         <footer style={footerStyle}>
-          <Input type="text" placeholder='Add friend using UID' className="bg-black w-full" style={{ color: 'white', fontSize: '15px', border: '0.5px solid white' }} value={newUID} onChange={(e) => setNewUID(e.target.value)} />
+          <Input type="text" placeholder='Add friend using UID' className="bg-black w-full" style={{ color: 'white', fontSize: '15px', border: '0.5px solid white' }} value={newUID} onChange={(e) => setNewUID(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { handleNewUID(); }}}/>
           <Label htmlFor="newUID" style={{ color: 'white' }}></Label>
           <button type="button" onClick={handleNewUID} style={{ border: '1px solid white', padding: '1%' }}>Add</button>
         </footer>

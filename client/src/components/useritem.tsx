@@ -6,7 +6,7 @@ export default function UserItem(props: {
 }) {
   return (
     <div
-      style={{ backgroundColor: "violet", marginTop: "5%", padding: "2%", cursor: 'pointer' }}
+      style={{ backgroundColor: "violet", marginTop: "5%", padding: "2%", cursor: 'pointer', height: '6vh' }}
       onClick={() => props.onClick(props.username)}
     >
       {props.username}

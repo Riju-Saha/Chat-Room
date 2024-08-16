@@ -14,6 +14,13 @@ interface Friend {
   friend_id: string;
 }
 
+interface ChatMessage {
+  Sender: string;
+  Recipient: string;
+  Message: string;
+  DtTime: string;
+}
+
 export default function Usernamepage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -22,8 +29,10 @@ export default function Usernamepage() {
   const [list, setList] = useState<Friend[]>([]);
   const [newUID, setNewUID] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<string | null>(null);
+  const [displayMessage, setDisplayMessage] = useState<string | null>(null);
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
+  const [chat, setChat] = useState<ChatMessage[]>([]); 
+  const [newMessage, setNewMessage] = useState<string>('');
 
   useEffect(() => {
     const handleResize = () => {
@@ -57,29 +66,29 @@ export default function Usernamepage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage("Friend added successfully!");
+        setDisplayMessage("Friend added successfully!");
         await fetchFriendList();
         setNewUID('');
       } else if (data.message === 'Friendship already exists') {
-        setMessage("Friendship already exists.");
+        setDisplayMessage("Friendship already exists.");
       } else {
-        setMessage("Failed to add friend. Please check the UID.");
+        setDisplayMessage("Failed to add friend. Please check the UID.");
       }
     } catch (error) {
       console.error("Error adding friend:", error);
-      setMessage("Failed to add friend. Please check the UID.");
+      setDisplayMessage("Failed to add friend. Please check the UID.");
     }
   };
 
   useEffect(() => {
-    if (message) {
+    if (displayMessage) {
       const timer = setTimeout(() => {
-        setMessage('');
+        setDisplayMessage('');
       }, 2400);
 
       return () => clearTimeout(timer);
     }
-  }, [message]);
+  }, [displayMessage]);
 
   const fetchFriendList = useCallback(async () => {
     try {
@@ -109,15 +118,30 @@ export default function Usernamepage() {
     }
   }, [user, fetchFriendList]);
 
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setSelectedUsername(null);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
+
   const closeChat = () => {
     setSelectedUsername(null);
   };
 
   const friendsStyle = {
-    height: "100vh",
+    height: "90vh",
     width: selectedUsername && isMobile ? "0%" : isMobile ? "100vw" : "28%",
     borderRight: selectedUsername && isMobile ? "none" : "1px solid white",
     display: selectedUsername && isMobile ? "none" : "block",
+    overflow: 'auto'
   };
 
   const chatsStyle = {
@@ -128,6 +152,7 @@ export default function Usernamepage() {
   };
 
   const footerStyle: React.CSSProperties = {
+    height: '6vh',
     width: isMobile ? "100vw" : "28%",
     position: "absolute",
     bottom: '2%',
@@ -136,6 +161,67 @@ export default function Usernamepage() {
     alignItems: 'center',
     padding: '0 10px',
   };
+
+  const fetchChat = useCallback(async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/chats/${user}/${selectedUsername}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setChat(data.messages || []);
+    } catch (error) {
+      console.error("Error fetching chat messages:", error);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (selectedUsername) {
+      fetchChat();
+    }
+  }, [selectedUsername, fetchChat]);
+
+  const handleMessageSent = async () => {
+    const messageObj = {
+      Sender: user!,
+      Message: newMessage.trim(),
+      DtTime: new Date().toISOString().split('T')[0],
+    };
+
+    try {
+      const response = await fetch(`http://localhost:8080/chats/${user}/${selectedUsername}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(messageObj),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to send message. HTTP status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        await fetchChat();
+        setNewMessage('');
+      } else {
+        console.error("Error sending message:");
+      }
+
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  }
+
 
   return (
     <div style={{ display: "flex", overflow: "hidden" }}>
@@ -156,7 +242,7 @@ export default function Usernamepage() {
           </Link>
         </div>
 
-        {message && <p style={{ color: 'white', textAlign: 'center' }}>{message}</p>}
+        {displayMessage && <p style={{ color: 'white', textAlign: 'center' }}>{displayMessage}</p>}
 
         {isLoading ? (
           <p style={{ color: 'white', textAlign: 'center' }}>Loading friends...</p>
@@ -179,18 +265,39 @@ export default function Usernamepage() {
 
       <div className="chats" style={chatsStyle}>
         {selectedUsername ? (
-          <div style={{ display: "flex", alignItems: 'center', backgroundColor: 'violet', justifyContent: 'space-between', paddingRight: '1%' }}>
-            <h1 style={{ color: 'white', textAlign: 'center', padding: '20px' }}>
-              {selectedUsername}
-            </h1>
-            <FontAwesomeIcon icon={faXmark} fontSize={'20px'} style={{ cursor: 'pointer' }} onClick={closeChat} />
-          </div>
+          <>
+            <div style={{ display: "flex", alignItems: 'center', backgroundColor: 'violet', justifyContent: 'space-between', paddingRight: '1%' }}>
+              <h1 style={{ color: 'white', textAlign: 'center', padding: '20px', fontSize: '20px' }}>
+                {selectedUsername}
+              </h1>
+              <FontAwesomeIcon icon={faXmark} fontSize={'20px'} style={{ cursor: 'pointer' }} onClick={closeChat} />
+            </div>
+
+            <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+              {chat.map((msg, index) => (
+                <div key={index} style={{ textAlign: msg.Sender === user ? 'right' : 'left', marginBottom: '10px' }}>
+                  <div style={{ display: 'inline-block', padding: '10px', borderRadius: '10px', backgroundColor: msg.Sender === user ? 'lightblue' : 'lightgray' }}>
+                    <p style={{ margin: 0 }}>
+                      {msg.Message ? msg.Message : "No message found"}
+                    </p>
+                  </div>
+                </div>
+
+              ))}
+            </div>
+
+            <div style={{ padding: '10px', display: 'block', alignItems: 'center', justifyContent: 'space-between', position: 'absolute', bottom: "0%", width: '71.5vw' }}>
+              <Input type="text" placeholder='Type your message...' className="bg-black w-full" style={{ color: 'white', fontSize: '15px', border: '0.5px solid white' }} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { handleMessageSent(); } }} />
+            </div>
+          </>
+          
         ) : (
           <h1 style={{ color: 'white', textAlign: 'center', padding: '20px' }}>
             Select a friend to start chatting
           </h1>
         )}
       </div>
+
     </div>
   );
 }

@@ -160,7 +160,41 @@ app.post('/profile/:username', (req, res) => {
   });
 });
 
+app.post('/chats/:user/:friend', (req,res) => {
+  const { user, friend } = req.params;
+  const { Sender, Message, DtTime } = req.body;
 
+  const insertChat = "INSERT INTO chats (Sender, Recipient, Message, DtTime) VALUES (?, ?, ?, ?)";
+  connection.query(insertChat, [user, friend, Message, DtTime], (err, result) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    if (result.length > 0) {
+      res.status(200).json({ success: true, result });
+    } else {
+      res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+  })
+})
+
+app.get('/chats/:user/:friend', (req,res) => {
+  const { user, friend } = req.params;
+
+  const fetchChat = "SELECT * FROM chats WHERE Sender = ? AND Recipient = ?";
+  connection.query(fetchChat, [user, friend], (err, result) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    if (result.length > 0) {
+      res.status(200).json({ success: true, result, message: 'Friends list retrieved successfully' });
+    } else {
+      res.status(404).json({ success: false, message: 'No friends found' });
+    }
+  })
+})
 
 
 server.listen(port, () => {
